@@ -1,0 +1,122 @@
+<section>
+    <p>Select a text frame you've customized before clicking create to match its styles.</p>
+    <p></p>
+    <p>Space below labels: <input id="padding" value="20"> px</p>
+</section>
+<section>
+    <button id="label" class="primaryButton">Create / Update Labels</button>
+    <button id="lock" class="secondaryButton iconButton"> 🔒</button>
+    <button id="hide" class="secondaryButton iconButton"> 👁</button>
+    <button id="delete" class="secondaryButton iconButton"> 🗑</button>
+    <button id="cancel" class="secondaryButton">Cancel</button>
+</section>
+<script>
+    document.getElementById('label').onclick = () => {
+        const textbox = document.getElementById('padding');
+        const padding = parseInt(textbox.value);
+
+        parent.postMessage({
+            pluginMessage: {
+                type: 'label-frames',
+                padding
+            }
+        }, '*')
+    }
+
+    document.getElementById('delete').onclick = () => {
+        parent.postMessage({
+            pluginMessage: {
+                type: 'delete'
+            }
+        }, '*')
+    }
+
+    document.getElementById('hide').onclick = () => {
+        parent.postMessage({
+            pluginMessage: {
+                type: 'hide'
+            }
+        }, '*')
+    }
+
+    document.getElementById('lock').onclick = () => {
+        parent.postMessage({
+            pluginMessage: {
+                type: 'lock'
+            }
+        }, '*')
+    }
+
+    document.getElementById('cancel').onclick = () => {
+        parent.postMessage({
+            pluginMessage: {
+                type: 'cancel'
+            }
+        }, '*')
+    }
+</script>
+<style>
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: small;
+    }
+    
+    body {
+        padding: 0px 10px;
+    }
+    
+    section {
+        padding: 10px 0px 0px 0px;
+    }
+    
+    input {
+        width: 40px;
+        text-align: right;
+    }
+    
+    button {
+        color: blue;
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: medium;
+        text-align: center;
+        margin: 0px 0px 10px 0px;
+        height: 40px;
+    }
+    
+    button:hover {
+        /* font-weight: 700; */
+    }
+    
+    .primaryButton {
+        background-color: green;
+        color: white;
+        font-size: small;
+        width: 100%;
+    }
+    
+    .primaryButton:hover {
+        background-color: darkgreen;
+    }
+    
+    .iconButton {
+        padding: 5px 10px 5px 13px;
+        margin: 0px 5px 10px 0px;
+    }
+    
+    .secondaryButton:hover {
+        background-color: whitesmoke;
+    }
+    
+    #delete {
+        color: red;
+    }
+    
+    #cancel {
+        color: firebrick;
+        font-size: small;
+        float: right;
+        margin: 0px 0px 10px 0px;
+    }
+</style>
