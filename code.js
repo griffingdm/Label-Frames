@@ -52,15 +52,6 @@ function updateExample(fontName, fontSize, decoration, fill) {
         type: "updateExample",
         fontName: fontName
     });
-    // figma.ui.postMessage({
-    //   pluginMessage: {
-    //     type: 'updateExample'
-    //     // fontName: fontName = { family: "Roboto", style: "Regular" },
-    //     // fontSize: fontSize,
-    //     // decoration: decoration,
-    //     // fill: fill
-    //   }
-    // }, '*')
 }
 function labelFrames(nodes, labelNodes, padding) {
     var theFontName = { family: "Roboto", style: "Regular" };
