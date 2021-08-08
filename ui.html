@@ -1,0 +1,261 @@
+<div id="section-wrapper">
+    <section>
+        <!-- <p class="example">Example Label</p> -->
+        <p>Select a text frame you've customized before clicking Label to match its styles.</p>
+        <p>Space below labels: <input id="padding" value="20"> px</p>
+        <p>
+            <label class="checkboxLabel">
+                <input type="checkbox" id="compCheck" class="regularCheckbox"> Include Component Frames
+            </label>
+        </p>
+    </section>
+    <section>
+        <button id="label" class="primaryButton">Label</button>
+        <button id="lock" class="secondaryButton iconButton"> 🔒</button>
+        <button id="hide" class="secondaryButton iconButton"> 🙈</button>
+        <button id="delete" class="secondaryButton iconButton"> 🗑</button>
+        <button id="cancel" class="secondaryButton">Close</button>
+    </section>
+</div>
+<script>
+    function controlsDisabled(disabled) {
+        document.getElementById("hide").disabled = disabled;
+        document.getElementById("lock").disabled = disabled;
+        document.getElementById("delete").disabled = disabled;
+    }
+    onmessage = (event) => {
+        // console.log("updating example...", event.data.pluginMessage);
+        // if (event.data.pluginMessage.type === "updateExample") {
+        //     console.log("made it in");
+
+        //     var winnerClassElements = document.getElementsByClassName("example");
+        //     for (var i = 0; i < winnerClassElements.length; i++) {
+        //         winnerClassElements[i].className = "newPrimaryButton";
+        //         winnerClassElements[i].style = ""
+        //     }
+        // }
+        if (event.data.pluginMessage.type === "launch") {
+            console.log("made it in", event.data.pluginMessage);
+            if (event.data.pluginMessage.isLocked) {
+                document.getElementById("lock").innerText = "🔓";
+            } else {
+                document.getElementById("lock").innerText = "🔒";
+            }
+
+            if (event.data.pluginMessage.isHidden) {
+                document.getElementById("hide").innerText = "👀";
+            } else {
+                document.getElementById("hide").innerText = "🙈";
+            }
+
+            if (event.data.pluginMessage.existingLabels) {
+                controlsDisabled(false);
+            } else {
+                controlsDisabled(true);
+            }
+        }
+
+        if (event.data.pluginMessage.type === "labeled") {
+            console.log("made it in", event.data.pluginMessage);
+            controlsDisabled(false);
+        }
+
+        if (event.data.pluginMessage.type === "updateLock") {
+            console.log("made it in", event.data.pluginMessage);
+            if (event.data.pluginMessage.isLocked) {
+                document.getElementById("lock").innerText = "🔓";
+            } else {
+                document.getElementById("lock").innerText = "🔒";
+            }
+        }
+
+        if (event.data.pluginMessage.type === "updateEye") {
+            console.log("made it in", event.data.pluginMessage);
+            if (event.data.pluginMessage.isHidden) {
+                document.getElementById("hide").innerText = "👀";
+            } else {
+                document.getElementById("hide").innerText = "🙈";
+            }
+        }
+
+        if (event.data.pluginMessage.type === "delete") {
+            console.log("made it in", event.data.pluginMessage);
+            document.getElementById("hide").innerText = "🙈";
+            document.getElementById("lock").innerText = "🔒";
+            controlsDisabled(true);
+        }
+    }
+
+    document.getElementById('label').onclick = () => {
+        const compCheck = document.querySelector('#compCheck').checked;
+        const textbox = document.getElementById('padding');
+        const padding = parseInt(textbox.value);
+
+        //check the checkbox
+        //console.log(compCheck);
+
+        if (!compCheck) {
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'label-frames',
+                    padding
+                }
+            }, '*')
+        } else {
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'label-frames-and-comps',
+                    padding
+                }
+            }, '*')
+        }
+    }
+
+    document.getElementById('delete').onclick = () => {
+        parent.postMessage({
+            pluginMessage: {
+                type: 'delete'
+            }
+        }, '*')
+    }
+
+    document.getElementById('hide').onclick = () => {
+        parent.postMessage({
+            pluginMessage: {
+                type: 'hide'
+            }
+        }, '*')
+    }
+
+    document.getElementById('lock').onclick = () => {
+        parent.postMessage({
+            pluginMessage: {
+                type: 'lock'
+            }
+        }, '*')
+    }
+
+    document.getElementById('cancel').onclick = () => {
+        parent.postMessage({
+            pluginMessage: {
+                type: 'cancel'
+            }
+        }, '*')
+    }
+</script>
+<style>
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: small;
+    }
+    
+    body {
+        padding: 0px 5px;
+    }
+    
+    #padding {
+        padding: 5px;
+        font-weight: 600;
+    }
+    
+    section {
+        padding: 10px 0px 0px 0px;
+    }
+    
+    input {
+        width: 40px;
+        text-align: right;
+        border: none;
+        background-color: whitesmoke;
+        padding: 5px 0px, 5px, 5px;
+    }
+    
+    .regularCheckbox {
+        width: auto;
+        vertical-align: middle;
+        margin: 0px 5px 0px 0px;
+        background-color: #fafafa;
+        border: 1px solid #cacece;
+    }
+    
+    .checkboxLabel {
+        display: flex;
+        padding: 0px;
+        margin: 0px;
+    }
+    
+    button {
+        background-color: rgb(255, 255, 255);
+        border-color: green;
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: medium;
+        text-align: center;
+        margin: 0px 0px 10px 0px;
+        height: 40px;
+        font-weight: 600;
+        border: 1px solid transparent;
+    }
+    
+    *:focus {
+        outline-color: lightgray;
+        outline-width: 1px;
+        border-width: 1px;
+    }
+    
+    button:disabled {
+        /* background-color: rgb(202, 202, 202); */
+        border-color: transparent;
+        opacity: 0.5;
+    }
+    
+    button:hover {
+        /* font-weight: 700; */
+        border-width: 1px;
+        border-color: whitesmoke;
+    }
+    
+    .primaryButton {
+        background-color: green;
+        color: white;
+        font-size: small;
+        width: 100%;
+    }
+    
+    .primaryButton:hover {
+        background-color: darkgreen;
+    }
+    
+    .primaryButton:focus {
+        outline: darkgreen;
+    }
+    
+    .iconButton {
+        padding: 5px 10px 5px 13px;
+        margin: 0px 5px 10px 0px;
+        font-size: large;
+        background-color: whitesmoke;
+    }
+    
+    .secondaryButton:hover {
+        border-width: 1px;
+        border-color: lightgray;
+        background-color: whitesmoke;
+    }
+    
+    #delete {}
+    
+    #cancel:focus {
+        outline-color: rgb(138, 17, 17);
+    }
+    
+    #cancel {
+        color: firebrick;
+        font-size: small;
+        float: right;
+        margin: 0px 0px 10px 0px;
+        border-color: transparent;
+        font-weight: 400;
+    }
+</style>
