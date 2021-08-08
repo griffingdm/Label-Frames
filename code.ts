@@ -41,12 +41,6 @@ figma.on('selectionchange', () => {
       console.log("loading font...");
       figma.loadFontAsync(node.fontName);
       console.log("selected font loaded");
-      // updateExample(
-      //   node.fontName,
-      //   node.fontSize,
-      //   node.textDecoration,
-      //   node.fills
-      // );
       return "label-frames";
     }
   }
