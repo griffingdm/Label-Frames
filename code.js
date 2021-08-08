@@ -12,7 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 let fontList = [];
 // This shows the HTML page in "ui.html".
-figma.showUI(__html__, { width: 275, height: 260 });
+figma.showUI(__html__, { width: 275, height: 222 });
 console.log("testing log");
 function main() {
     return __awaiter(this, void 0, void 0, function* () {

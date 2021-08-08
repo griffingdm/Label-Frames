@@ -1,21 +1,19 @@
 <div id="section-wrapper">
-    <section>
-        <!-- <p class="example">Example Label</p> -->
-        <p>Select a text frame you've customized before clicking Label to match its styles.</p>
-        <p>Space below labels: <input id="padding" value="20"> px</p>
-        <p>
-            <label class="checkboxLabel">
+    <!-- <p class="example">Example Label</p> -->
+    <p class="flexitem"> Select a text frame you've customized before clicking Label to match its styles.</p>
+    <p class="flexitem">Space below labels: <input id="padding" value="20"> px</p>
+    <p class="flexitem">
+        <label class="checkboxLabel">
                 <input type="checkbox" id="compCheck" class="regularCheckbox"> Include Component Frames
             </label>
-        </p>
-    </section>
-    <section>
-        <button id="label" class="primaryButton">Label</button>
+    </p>
+    <button id="label" class="primaryButton flexitem">Label</button>
+    <div class="button-grid flexitem">
         <button id="lock" class="secondaryButton iconButton"> 🔒</button>
         <button id="hide" class="secondaryButton iconButton"> 🙈</button>
         <button id="delete" class="secondaryButton iconButton"> 🗑</button>
         <button id="cancel" class="secondaryButton">Close</button>
-    </section>
+    </div>
 </div>
 <script>
     function controlsDisabled(disabled) {
@@ -149,17 +147,42 @@
         font-size: small;
     }
     
+    #section-wrapper {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: space-between;
+        align-items: stretch;
+        height: 100%;
+    }
+    
+    .flexitem {
+        flex-basis: auto;
+        margin: 5px 0px;
+    }
+    
     body {
         padding: 0px 5px;
     }
     
+    p {
+        padding: 0px;
+    }
+    
     #padding {
-        padding: 5px;
+        padding: 6px;
         font-weight: 600;
     }
     
     section {
-        padding: 10px 0px 0px 0px;
+        padding: 0px 0px 0px 0px;
+    }
+    
+    .button-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0px;
+        grid-auto-rows: 100%;
+        margin: 0px;
     }
     
     input {
@@ -188,12 +211,11 @@
         background-color: rgb(255, 255, 255);
         border-color: green;
         font-family: Arial, Helvetica, sans-serif;
-        padding: 5px 10px;
+        padding: 10px 10px;
+        margin: auto 0px;
         border-radius: 4px;
         font-size: medium;
         text-align: center;
-        margin: 0px 0px 10px 0px;
-        height: 40px;
         font-weight: 600;
         border: 1px solid transparent;
     }
@@ -232,10 +254,15 @@
     }
     
     .iconButton {
-        padding: 5px 10px 5px 13px;
+        /* padding: 5px 10px 5px 13px; */
         margin: 0px 5px 10px 0px;
         font-size: large;
+        line-height: 30px;
         background-color: whitesmoke;
+    }
+    
+    .secondaryButton {
+        height: auto;
     }
     
     .secondaryButton:hover {

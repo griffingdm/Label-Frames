@@ -5,7 +5,7 @@
 let fontList = [];
 
 // This shows the HTML page in "ui.html".
-figma.showUI(__html__, {width: 275, height: 260});
+figma.showUI(__html__, {width: 275, height: 222});
 
 console.log("testing log");
 
