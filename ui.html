@@ -42,6 +42,10 @@
             }
         }
 
+        if (event.data.pluginMessage.type === "disable") {
+            controlsDisabled(event.data.pluginMessage.isDisabled);
+        }
+
         if (event.data.pluginMessage.type === "labeled") {
             console.log("made it in", event.data.pluginMessage);
             controlsDisabled(false);

@@ -154,6 +154,34 @@ function launch() {
         existingLabels: existingLabels
     });
 }
+function deleteAll() {
+    var deletedSomething = false;
+    const labelGroup = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "group");
+    if (labelGroup.length != 0) {
+        for (let i = 0; i < labelGroup.length; i++) {
+            if (labelGroup[i] != null) {
+                labelGroup[i].remove();
+                deletedSomething = true;
+            }
+        }
+    }
+    else {
+        //nothing to delete
+    }
+    figma.ui.postMessage({
+        type: "delete",
+        deletedSomething
+    });
+}
+function errNoFrames() {
+    figma.ui.postMessage({
+        type: "disable",
+        isDisabled: true
+    });
+    deleteAll();
+    figma.notify('create a frame to label!'), { timeout: 0.5 };
+    return "error: no frames";
+}
 main().then((message) => {
     launch();
     // Calls to "parent.postMessage" from within the HTML page will trigger this
@@ -164,23 +192,29 @@ main().then((message) => {
         const compNodes = figma.currentPage.findAll(node => node.type === "COMPONENT" && node.parent === figma.currentPage.children[0].parent);
         const instaNodes = figma.currentPage.findAll(node => node.type === "INSTANCE" && node.parent === figma.currentPage.children[0].parent);
         const labelNodes = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "label");
-        if (nodes.length === 0) {
-            figma.notify('create a frame to label!'), { timeout: 0.5 };
-            return "error: no frames";
-        }
         // One way of distinguishing between different types of messages sent from
         // your HTML page is to use an object with a "type" property like this.
-        if (msg.type === 'label-frames') {
-            labelFrames(nodes, labelNodes, msg.padding);
-            figma.ui.postMessage({
-                type: "labeled"
-            });
-        }
         if (msg.type === 'label-frames-and-comps') {
-            labelFrames(nodes.concat(compNodes.concat(instaNodes)), labelNodes, msg.padding);
-            figma.ui.postMessage({
-                type: "labeled"
-            });
+            if (nodes.length + compNodes.length + instaNodes.length === 0) {
+                errNoFrames();
+            }
+            else {
+                labelFrames(nodes.concat(compNodes.concat(instaNodes)), labelNodes, msg.padding);
+                figma.ui.postMessage({
+                    type: "labeled"
+                });
+            }
+        }
+        else if (msg.type === 'label-frames') {
+            if (nodes.length === 0) {
+                errNoFrames();
+            }
+            else {
+                labelFrames(nodes, labelNodes, msg.padding);
+                figma.ui.postMessage({
+                    type: "labeled"
+                });
+            }
         }
         if (msg.type === 'lock') {
             var isLocked = false;
@@ -223,23 +257,7 @@ main().then((message) => {
             });
         }
         if (msg.type === 'delete') {
-            var deletedSomething = false;
-            const labelGroup = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "group");
-            if (labelGroup.length != 0) {
-                for (let i = 0; i < labelGroup.length; i++) {
-                    if (labelGroup[i] != null) {
-                        labelGroup[i].remove();
-                        deletedSomething = true;
-                    }
-                }
-            }
-            else {
-                //nothing to delete
-            }
-            figma.ui.postMessage({
-                type: "delete",
-                deletedSomething
-            });
+            deleteAll();
         }
         if (msg.type === 'cancel') {
             figma.closePlugin(message);
