@@ -46,6 +46,10 @@ figma.on('selectionchange', () => {
   }
 })
 
+figma.on('currentpagechange', () => {
+  launch();
+})
+
 function updateExample(fontName: FontName, fontSize: Number, decoration: TextDecoration, fill: Paint) {
   figma.ui.postMessage({
     type: "updateExample",
@@ -85,6 +89,7 @@ function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
         }
       }
 
+      figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection);
       figma.currentPage.selection = [];
       console.log("creating labels...");
 
@@ -120,7 +125,7 @@ function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
       labelGroup.name = "🏷";
 }
 
-main().then((message: string | undefined) => {
+function launch(){
   const labelNodes = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "label");
   var isLocked = false;
   var isHidden = false;
@@ -157,6 +162,10 @@ main().then((message: string | undefined) => {
     isHidden: isHidden,
     existingLabels: existingLabels
   });
+}
+
+main().then((message: string | undefined) => {
+  launch();
 
   // Calls to "parent.postMessage" from within the HTML page will trigger this
   // callback. The callback will be passed the "pluginMessage" property of the
