@@ -9,15 +9,27 @@ figma.showUI(__html__, {width: 275, height: 222});
 
 console.log("testing log");
 
+async function loadFont(fontFamily:string, fontStyle?:string) {
+  var localFontStyle:string = "Regular";
+
+  if(typeof fontStyle !== 'undefined'){
+    localFontStyle = fontStyle;
+  }
+  
+  await figma.loadFontAsync({family:fontFamily, style:localFontStyle});
+};
+
 async function main(): Promise <string | undefined> {
   const labelNodes = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "label")
 
-  await figma.loadFontAsync({family: "Roboto", style: "Regular"});
+  // await figma.loadFontAsync({family: "Roboto", style: "Regular"});
+  await loadFont("Roboto");
 
   for (const node of figma.currentPage.selection) {
       if (node.type === 'TEXT') {
         console.log("loading font...");
-        await figma.loadFontAsync(node.fontName);
+        // await figma.loadFontAsync(node.fontName);
+        await loadFont(String(node.fontName.family));
         console.log("selected font loaded");
         return "label-frames";
       }
@@ -26,7 +38,8 @@ async function main(): Promise <string | undefined> {
   for (let i = 0; i < labelNodes.length; i++) {
     if (labelNodes[i] != null) {
       console.log("loading font...");
-      await figma.loadFontAsync(labelNodes[i].fontName);
+      // await figma.loadFontAsync(labelNodes[i].fontName);
+      await loadFont(String(labelNodes[i].fontName.family));
     }
   }
 
@@ -35,16 +48,25 @@ async function main(): Promise <string | undefined> {
   }
 }
 
-figma.on('selectionchange', () => {
-  for (const node of figma.currentPage.selection) {
-    if (node.type === 'TEXT') {
-      console.log("loading font...");
-      figma.loadFontAsync(node.fontName);
-      console.log("selected font loaded");
-      return "label-frames";
-    }
-  }
-})
+// figma.on('selectionchange', () => {
+//   var selectedNode:TextNode;
+
+//   for (const node of figma.currentPage.selection) {
+//     if (node.type === 'TEXT') {
+//       console.log("found a text layer selected");
+//       selectedNode = node; 
+//       break;
+//     }
+//   }
+
+//   if(selectedNode != null){
+//     console.log("loading font...");
+//     // figma.loadFontAsync(node.fontName);
+//     loadFont(String(selectedNode.fontName.family));
+//     console.log("selected font loaded");
+//     return "label-frames";
+//   }
+// })
 
 figma.on('currentpagechange', () => {
   launch();
@@ -57,7 +79,7 @@ function updateExample(fontName: FontName, fontSize: Number, decoration: TextDec
   });
 }
 
-function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
+async function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
       var theFontName: FontName = { family: "Roboto", style: "Regular" };
       var theFontSize: number = 48;
       var theTextDecoration: TextDecoration;
@@ -72,7 +94,7 @@ function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
             theTextDecoration = node.textDecoration;
             theFontName = node.fontName;
         }
-      } else if (labelNodes[0] != null) {
+      } else if (labelNodes[0] != null && labelNodes[0].type === 'TEXT') {
           theFontName = labelNodes[0].fontName;
           theFontSize = labelNodes[0].fontSize;
           theTextDecoration = labelNodes[0].textDecoration;
@@ -80,7 +102,7 @@ function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
 
           figma.notify('updating frame labels...'), {timeout: 1.5};
       } else {
-        figma.notify('creating new frame labels...', {timeout: 1.5});
+          figma.notify('creating new frame labels...', {timeout: 1.5});
       }
       
       for (let i = 0; i < labelNodes.length; i++) {
@@ -89,12 +111,22 @@ function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
         }
       }
 
-      figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection);
       figma.currentPage.selection = [];
       console.log("creating labels...");
 
+      console.log(theFontName);
+
+      await loadFont(String(theFontName.family), String(theFontName.style));
+
       for (let i = 0; i < nodes.length; i++) {
         const text = figma.createText();
+        
+        try {
+          text.fontName = theFontName
+        } catch (error) {
+          theError = "error setting font family... try again";
+        }
+
         text.characters = nodes[i].name;
         text.setPluginData("label-artboards", "label");
         text.name = "🏷".concat(text.name);
@@ -102,12 +134,6 @@ function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
         text.fontSize = theFontSize;
         if (theTextDecoration != null) {text.textDecoration = theTextDecoration;}
         if (theFontFill != null)       {text.fills = theFontFill}
-
-        try {
-          text.fontName = theFontName
-        } catch (error) {
-          theError = "error setting font family... try again";
-        }
 
         text.x = nodes[i].x;
         text.y = nodes[i].y - text.height - padding;
@@ -123,6 +149,8 @@ function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
       const labelGroup = figma.group(figma.currentPage.selection, figma.currentPage.children[0].parent);
       labelGroup.setPluginData("label-artboards", "group");
       labelGroup.name = "🏷";
+
+      figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection);
 }
 
 function launch(){
@@ -227,8 +255,6 @@ main().then((message: string | undefined) => {
         });
       }
     }
-
-    
 
     if (msg.type === 'lock') {
       var isLocked: Boolean = false;
