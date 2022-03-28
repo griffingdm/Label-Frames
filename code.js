@@ -14,14 +14,26 @@ let fontList = [];
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__, { width: 275, height: 222 });
 console.log("testing log");
+function loadFont(fontFamily, fontStyle) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var localFontStyle = "Regular";
+        if (typeof fontStyle !== 'undefined') {
+            localFontStyle = fontStyle;
+        }
+        yield figma.loadFontAsync({ family: fontFamily, style: localFontStyle });
+    });
+}
+;
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const labelNodes = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "label");
-        yield figma.loadFontAsync({ family: "Roboto", style: "Regular" });
+        // await figma.loadFontAsync({family: "Roboto", style: "Regular"});
+        yield loadFont("Roboto");
         for (const node of figma.currentPage.selection) {
             if (node.type === 'TEXT') {
                 console.log("loading font...");
-                yield figma.loadFontAsync(node.fontName);
+                // await figma.loadFontAsync(node.fontName);
+                yield loadFont(String(node.fontName.family));
                 console.log("selected font loaded");
                 return "label-frames";
             }
@@ -29,7 +41,8 @@ function main() {
         for (let i = 0; i < labelNodes.length; i++) {
             if (labelNodes[i] != null) {
                 console.log("loading font...");
-                yield figma.loadFontAsync(labelNodes[i].fontName);
+                // await figma.loadFontAsync(labelNodes[i].fontName);
+                yield loadFont(String(labelNodes[i].fontName.family));
             }
         }
         if (figma.currentPage.selection.length === 0) {
@@ -37,16 +50,23 @@ function main() {
         }
     });
 }
-figma.on('selectionchange', () => {
-    for (const node of figma.currentPage.selection) {
-        if (node.type === 'TEXT') {
-            console.log("loading font...");
-            figma.loadFontAsync(node.fontName);
-            console.log("selected font loaded");
-            return "label-frames";
-        }
-    }
-});
+// figma.on('selectionchange', () => {
+//   var selectedNode:TextNode;
+//   for (const node of figma.currentPage.selection) {
+//     if (node.type === 'TEXT') {
+//       console.log("found a text layer selected");
+//       selectedNode = node; 
+//       break;
+//     }
+//   }
+//   if(selectedNode != null){
+//     console.log("loading font...");
+//     // figma.loadFontAsync(node.fontName);
+//     loadFont(String(selectedNode.fontName.family));
+//     console.log("selected font loaded");
+//     return "label-frames";
+//   }
+// })
 figma.on('currentpagechange', () => {
     launch();
 });
@@ -57,67 +77,71 @@ function updateExample(fontName, fontSize, decoration, fill) {
     });
 }
 function labelFrames(nodes, labelNodes, padding) {
-    var theFontName = { family: "Roboto", style: "Regular" };
-    var theFontSize = 48;
-    var theTextDecoration;
-    var theFontFill;
-    var theError = "";
-    if (figma.currentPage.selection.length > 0 && figma.currentPage.selection[0].type === "TEXT") {
-        for (const node of figma.currentPage.selection) {
-            figma.notify('matching style of selected frame...', { timeout: 1.5 });
-            theFontSize = node.fontSize;
-            theFontFill = node.fills;
-            theTextDecoration = node.textDecoration;
-            theFontName = node.fontName;
+    return __awaiter(this, void 0, void 0, function* () {
+        var theFontName = { family: "Roboto", style: "Regular" };
+        var theFontSize = 48;
+        var theTextDecoration;
+        var theFontFill;
+        var theError = "";
+        if (figma.currentPage.selection.length > 0 && figma.currentPage.selection[0].type === "TEXT") {
+            for (const node of figma.currentPage.selection) {
+                figma.notify('matching style of selected frame...', { timeout: 1.5 });
+                theFontSize = node.fontSize;
+                theFontFill = node.fills;
+                theTextDecoration = node.textDecoration;
+                theFontName = node.fontName;
+            }
         }
-    }
-    else if (labelNodes[0] != null) {
-        theFontName = labelNodes[0].fontName;
-        theFontSize = labelNodes[0].fontSize;
-        theTextDecoration = labelNodes[0].textDecoration;
-        theFontFill = labelNodes[0].fills;
-        figma.notify('updating frame labels...'), { timeout: 1.5 };
-    }
-    else {
-        figma.notify('creating new frame labels...', { timeout: 1.5 });
-    }
-    for (let i = 0; i < labelNodes.length; i++) {
-        if (labelNodes[i] != null) {
-            labelNodes[i].remove();
+        else if (labelNodes[0] != null && labelNodes[0].type === 'TEXT') {
+            theFontName = labelNodes[0].fontName;
+            theFontSize = labelNodes[0].fontSize;
+            theTextDecoration = labelNodes[0].textDecoration;
+            theFontFill = labelNodes[0].fills;
+            figma.notify('updating frame labels...'), { timeout: 1.5 };
         }
-    }
-    figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection);
-    figma.currentPage.selection = [];
-    console.log("creating labels...");
-    for (let i = 0; i < nodes.length; i++) {
-        const text = figma.createText();
-        text.characters = nodes[i].name;
-        text.setPluginData("label-artboards", "label");
-        text.name = "🏷".concat(text.name);
-        text.fontSize = theFontSize;
-        if (theTextDecoration != null) {
-            text.textDecoration = theTextDecoration;
+        else {
+            figma.notify('creating new frame labels...', { timeout: 1.5 });
         }
-        if (theFontFill != null) {
-            text.fills = theFontFill;
+        for (let i = 0; i < labelNodes.length; i++) {
+            if (labelNodes[i] != null) {
+                labelNodes[i].remove();
+            }
         }
-        try {
-            text.fontName = theFontName;
+        figma.currentPage.selection = [];
+        console.log("creating labels...");
+        console.log(theFontName);
+        yield loadFont(String(theFontName.family), String(theFontName.style));
+        for (let i = 0; i < nodes.length; i++) {
+            const text = figma.createText();
+            try {
+                text.fontName = theFontName;
+            }
+            catch (error) {
+                theError = "error setting font family... try again";
+            }
+            text.characters = nodes[i].name;
+            text.setPluginData("label-artboards", "label");
+            text.name = "🏷".concat(text.name);
+            text.fontSize = theFontSize;
+            if (theTextDecoration != null) {
+                text.textDecoration = theTextDecoration;
+            }
+            if (theFontFill != null) {
+                text.fills = theFontFill;
+            }
+            text.x = nodes[i].x;
+            text.y = nodes[i].y - text.height - padding;
+            figma.currentPage.selection = figma.currentPage.selection.concat(text);
         }
-        catch (error) {
-            theError = "error setting font family... try again";
+        if (theError != "") {
+            figma.notify(theError);
+            console.log(theError);
         }
-        text.x = nodes[i].x;
-        text.y = nodes[i].y - text.height - padding;
-        figma.currentPage.selection = figma.currentPage.selection.concat(text);
-    }
-    if (theError != "") {
-        figma.notify(theError);
-        console.log(theError);
-    }
-    const labelGroup = figma.group(figma.currentPage.selection, figma.currentPage.children[0].parent);
-    labelGroup.setPluginData("label-artboards", "group");
-    labelGroup.name = "🏷";
+        const labelGroup = figma.group(figma.currentPage.selection, figma.currentPage.children[0].parent);
+        labelGroup.setPluginData("label-artboards", "group");
+        labelGroup.name = "🏷";
+        figma.viewport.scrollAndZoomIntoView(figma.currentPage.selection);
+    });
 }
 function launch() {
     const labelNodes = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "label");
