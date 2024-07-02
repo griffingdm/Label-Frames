@@ -137,6 +137,11 @@ async function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
 
         text.x = nodes[i].x;
         text.y = nodes[i].y - text.height - padding;
+
+        if(nodes[i].parent?.type === "SECTION"){
+          text.x += nodes[i].parent.x;
+          text.y += nodes[i].parent.y;
+        }
         
         figma.currentPage.selection = figma.currentPage.selection.concat(text);
       }
@@ -229,9 +234,18 @@ main().then((message: string | undefined) => {
   // callback. The callback will be passed the "pluginMessage" property of the
   // posted message.
   figma.ui.onmessage = msg => {
-    const nodes = figma.currentPage.findAll(node => node.type === "FRAME" && node.parent === figma.currentPage.children[0].parent);
-    const compNodes = figma.currentPage.findAll(node => node.type === "COMPONENT" && node.parent === figma.currentPage.children[0].parent);
-    const instaNodes = figma.currentPage.findAll(node => node.type === "INSTANCE" && node.parent === figma.currentPage.children[0].parent);
+    const nodes = figma.currentPage.findAll(node => 
+      node.type === "FRAME" && 
+      (node.parent === figma.currentPage.children[0].parent || node.parent?.type === "SECTION")
+    );
+    const compNodes = figma.currentPage.findAll(node => 
+      node.type === "COMPONENT" && 
+      (node.parent === figma.currentPage.children[0].parent || node.parent?.type === "SECTION")
+    );
+    const instaNodes = figma.currentPage.findAll(node => 
+      node.type === "INSTANCE" && 
+      (node.parent === figma.currentPage.children[0].parent || node.parent?.type === "SECTION")
+    );
     const labelNodes = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "label");
 
     // One way of distinguishing between different types of messages sent from

@@ -1,3 +1,4 @@
+"use strict";
 // This file holds the main code for the plugins. It has access to the *document*.
 // You can access browser APIs in the <script> tag inside "ui.html" which has a
 // full browser enviroment (see documentation).
@@ -78,6 +79,7 @@ function updateExample(fontName, fontSize, decoration, fill) {
 }
 function labelFrames(nodes, labelNodes, padding) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         var theFontName = { family: "Roboto", style: "Regular" };
         var theFontSize = 48;
         var theTextDecoration;
@@ -131,6 +133,10 @@ function labelFrames(nodes, labelNodes, padding) {
             }
             text.x = nodes[i].x;
             text.y = nodes[i].y - text.height - padding;
+            if (((_a = nodes[i].parent) === null || _a === void 0 ? void 0 : _a.type) === "SECTION") {
+                text.x += nodes[i].parent.x;
+                text.y += nodes[i].parent.y;
+            }
             figma.currentPage.selection = figma.currentPage.selection.concat(text);
         }
         if (theError != "") {
@@ -212,9 +218,21 @@ main().then((message) => {
     // callback. The callback will be passed the "pluginMessage" property of the
     // posted message.
     figma.ui.onmessage = msg => {
-        const nodes = figma.currentPage.findAll(node => node.type === "FRAME" && node.parent === figma.currentPage.children[0].parent);
-        const compNodes = figma.currentPage.findAll(node => node.type === "COMPONENT" && node.parent === figma.currentPage.children[0].parent);
-        const instaNodes = figma.currentPage.findAll(node => node.type === "INSTANCE" && node.parent === figma.currentPage.children[0].parent);
+        const nodes = figma.currentPage.findAll(node => {
+            var _a;
+            return node.type === "FRAME" &&
+                (node.parent === figma.currentPage.children[0].parent || ((_a = node.parent) === null || _a === void 0 ? void 0 : _a.type) === "SECTION");
+        });
+        const compNodes = figma.currentPage.findAll(node => {
+            var _a;
+            return node.type === "COMPONENT" &&
+                (node.parent === figma.currentPage.children[0].parent || ((_a = node.parent) === null || _a === void 0 ? void 0 : _a.type) === "SECTION");
+        });
+        const instaNodes = figma.currentPage.findAll(node => {
+            var _a;
+            return node.type === "INSTANCE" &&
+                (node.parent === figma.currentPage.children[0].parent || ((_a = node.parent) === null || _a === void 0 ? void 0 : _a.type) === "SECTION");
+        });
         const labelNodes = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "label");
         // One way of distinguishing between different types of messages sent from
         // your HTML page is to use an object with a "type" property like this.
