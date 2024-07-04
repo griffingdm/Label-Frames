@@ -1,3 +1,4 @@
+"use strict";
 // This file holds the main code for the plugins. It has access to the *document*.
 // You can access browser APIs in the <script> tag inside "ui.html" which has a
 // full browser enviroment (see documentation).
@@ -12,7 +13,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 let fontList = [];
 // This shows the HTML page in "ui.html".
-figma.showUI(__html__, { width: 275, height: 222 });
+figma.showUI(__html__, { width: 275, height: 258 });
 console.log("testing log");
 function loadFont(fontFamily, fontStyle) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -41,7 +42,6 @@ function main() {
         for (let i = 0; i < labelNodes.length; i++) {
             if (labelNodes[i] != null) {
                 console.log("loading font...");
-                // await figma.loadFontAsync(labelNodes[i].fontName);
                 yield loadFont(String(labelNodes[i].fontName.family));
             }
         }
@@ -50,23 +50,6 @@ function main() {
         }
     });
 }
-// figma.on('selectionchange', () => {
-//   var selectedNode:TextNode;
-//   for (const node of figma.currentPage.selection) {
-//     if (node.type === 'TEXT') {
-//       console.log("found a text layer selected");
-//       selectedNode = node; 
-//       break;
-//     }
-//   }
-//   if(selectedNode != null){
-//     console.log("loading font...");
-//     // figma.loadFontAsync(node.fontName);
-//     loadFont(String(selectedNode.fontName.family));
-//     console.log("selected font loaded");
-//     return "label-frames";
-//   }
-// })
 figma.on('currentpagechange', () => {
     launch();
 });
@@ -78,6 +61,7 @@ function updateExample(fontName, fontSize, decoration, fill) {
 }
 function labelFrames(nodes, labelNodes, padding) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         var theFontName = { family: "Roboto", style: "Regular" };
         var theFontSize = 48;
         var theTextDecoration;
@@ -85,7 +69,7 @@ function labelFrames(nodes, labelNodes, padding) {
         var theError = "";
         if (figma.currentPage.selection.length > 0 && figma.currentPage.selection[0].type === "TEXT") {
             for (const node of figma.currentPage.selection) {
-                figma.notify('matching style of selected frame...', { timeout: 1.5 });
+                figma.notify('labeling with the style of selected text frame...', { timeout: 1.5 });
                 theFontSize = node.fontSize;
                 theFontFill = node.fills;
                 theTextDecoration = node.textDecoration;
@@ -131,6 +115,10 @@ function labelFrames(nodes, labelNodes, padding) {
             }
             text.x = nodes[i].x;
             text.y = nodes[i].y - text.height - padding;
+            if (((_a = nodes[i].parent) === null || _a === void 0 ? void 0 : _a.type) === "SECTION") {
+                text.x += nodes[i].parent.x;
+                text.y += nodes[i].parent.y;
+            }
             figma.currentPage.selection = figma.currentPage.selection.concat(text);
         }
         if (theError != "") {
@@ -162,11 +150,6 @@ function launch() {
         else {
             isHidden = false;
         }
-        // if (labelNodes[0].visible === false) {
-        //   isHidden = true;
-        // } else {
-        //   isHidden = false;
-        // }
     }
     else {
         existingLabels = false;
@@ -212,9 +195,21 @@ main().then((message) => {
     // callback. The callback will be passed the "pluginMessage" property of the
     // posted message.
     figma.ui.onmessage = msg => {
-        const nodes = figma.currentPage.findAll(node => node.type === "FRAME" && node.parent === figma.currentPage.children[0].parent);
-        const compNodes = figma.currentPage.findAll(node => node.type === "COMPONENT" && node.parent === figma.currentPage.children[0].parent);
-        const instaNodes = figma.currentPage.findAll(node => node.type === "INSTANCE" && node.parent === figma.currentPage.children[0].parent);
+        const nodes = figma.currentPage.findAll(node => {
+            var _a;
+            return node.type === "FRAME" &&
+                (node.parent === figma.currentPage.children[0].parent || ((_a = node.parent) === null || _a === void 0 ? void 0 : _a.type) === "SECTION");
+        });
+        const compNodes = figma.currentPage.findAll(node => {
+            var _a;
+            return node.type === "COMPONENT" &&
+                (node.parent === figma.currentPage.children[0].parent || ((_a = node.parent) === null || _a === void 0 ? void 0 : _a.type) === "SECTION");
+        });
+        const instaNodes = figma.currentPage.findAll(node => {
+            var _a;
+            return node.type === "INSTANCE" &&
+                (node.parent === figma.currentPage.children[0].parent || ((_a = node.parent) === null || _a === void 0 ? void 0 : _a.type) === "SECTION");
+        });
         const labelNodes = figma.currentPage.findAll(node => node.getPluginData("label-artboards") === "label");
         // One way of distinguishing between different types of messages sent from
         // your HTML page is to use an object with a "type" property like this.
