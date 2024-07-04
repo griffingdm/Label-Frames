@@ -5,7 +5,7 @@
 let fontList = [];
 
 // This shows the HTML page in "ui.html".
-figma.showUI(__html__, {width: 275, height: 222});
+figma.showUI(__html__, {width: 275, height: 258});
 
 console.log("testing log");
 
@@ -38,7 +38,6 @@ async function main(): Promise <string | undefined> {
   for (let i = 0; i < labelNodes.length; i++) {
     if (labelNodes[i] != null) {
       console.log("loading font...");
-      // await figma.loadFontAsync(labelNodes[i].fontName);
       await loadFont(String(labelNodes[i].fontName.family));
     }
   }
@@ -47,26 +46,6 @@ async function main(): Promise <string | undefined> {
     // figma.notify('Select a text layer before creating labels to match its style');
   }
 }
-
-// figma.on('selectionchange', () => {
-//   var selectedNode:TextNode;
-
-//   for (const node of figma.currentPage.selection) {
-//     if (node.type === 'TEXT') {
-//       console.log("found a text layer selected");
-//       selectedNode = node; 
-//       break;
-//     }
-//   }
-
-//   if(selectedNode != null){
-//     console.log("loading font...");
-//     // figma.loadFontAsync(node.fontName);
-//     loadFont(String(selectedNode.fontName.family));
-//     console.log("selected font loaded");
-//     return "label-frames";
-//   }
-// })
 
 figma.on('currentpagechange', () => {
   launch();
@@ -88,7 +67,7 @@ async function labelFrames(nodes: [any], labelNodes: [any], padding: number) {
 
       if (figma.currentPage.selection.length > 0 && figma.currentPage.selection[0].type === "TEXT") {
         for (const node of figma.currentPage.selection) {
-            figma.notify('matching style of selected frame...', {timeout: 1.5});
+            figma.notify('labeling with the style of selected text frame...', {timeout: 1.5});
             theFontSize = node.fontSize;
             theFontFill = node.fills;
             theTextDecoration = node.textDecoration;
@@ -180,11 +159,6 @@ function launch(){
       isHidden = false;
     }
 
-    // if (labelNodes[0].visible === false) {
-    //   isHidden = true;
-    // } else {
-    //   isHidden = false;
-    // }
   } else {
     existingLabels = false;
   }

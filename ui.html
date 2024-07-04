@@ -1,285 +1,421 @@
 <div id="section-wrapper">
-    <p class="flexitem"> Select a text frame you've customized before clicking Label to match its styles.</p>
-    <p class="flexitem">Space below labels: <input id="padding" value="20"> px</p>
-    <p class="flexitem">
-        <label class="checkboxLabel">
-                <input type="checkbox" id="compCheck" class="regularCheckbox"> Include Component Frames
-            </label>
-    </p>
-    <button id="label" class="primaryButton flexitem">Label</button>
-    <div class="button-grid flexitem">
-        <button id="lock" class="secondaryButton iconButton"> 🔒</button>
-        <button id="hide" class="secondaryButton iconButton"> 🙈</button>
-        <button id="delete" class="secondaryButton iconButton"> 🗑</button>
-        <button id="cancel" class="secondaryButton">Close</button>
-    </div>
+  <button id="label" class="primaryButton">Label</button>
+  <div id="padding-input-div" class="containerDiv">
+    <label for="padding" class="custom-input-label">
+      <input id="padding" class="custom-input" value="20" />
+      Space below labels
+    </label>
+  </div>
+  <div id="include-components-selection-div" class="containerDiv">
+    <label class="custom-checkmark">
+      <input type="checkbox" id="compCheck" class="custom-checkbox" checked />
+      <span class="checkmark"></span>
+      Include components
+    </label>
+  </div>
+  <div class="button-grid">
+    <button id="lock" class="iconButton">🔒</button>
+    <button id="hide" class="iconButton">🙈</button>
+    <button id="delete" class="iconButton">🗑</button>
+  </div>
+  <p style="color: #96919e; font-size: 12px">
+    Select a text frame before labeling to match that text frame's styles.
+  </p>
 </div>
-<script>
-    function controlsDisabled(disabled) {
-        document.getElementById("hide").disabled = disabled;
-        document.getElementById("lock").disabled = disabled;
-        document.getElementById("delete").disabled = disabled;
-    }
-    onmessage = (event) => {
-        if (event.data.pluginMessage.type === "launch") {
-            console.log("made it in", event.data.pluginMessage);
-            if (event.data.pluginMessage.isLocked) {
-                document.getElementById("lock").innerText = "🔓";
-            } else {
-                document.getElementById("lock").innerText = "🔒";
-            }
 
-            if (event.data.pluginMessage.isHidden) {
-                document.getElementById("hide").innerText = "👀";
-            } else {
-                document.getElementById("hide").innerText = "🙈";
-            }
-
-            if (event.data.pluginMessage.existingLabels) {
-                controlsDisabled(false);
-            } else {
-                controlsDisabled(true);
-            }
-        }
-
-        if (event.data.pluginMessage.type === "disable") {
-            controlsDisabled(event.data.pluginMessage.isDisabled);
-        }
-
-        if (event.data.pluginMessage.type === "labeled") {
-            console.log("made it in", event.data.pluginMessage);
-            controlsDisabled(false);
-        }
-
-        if (event.data.pluginMessage.type === "updateLock") {
-            console.log("made it in", event.data.pluginMessage);
-            if (event.data.pluginMessage.isLocked) {
-                document.getElementById("lock").innerText = "🔓";
-            } else {
-                document.getElementById("lock").innerText = "🔒";
-            }
-        }
-
-        if (event.data.pluginMessage.type === "updateEye") {
-            console.log("made it in", event.data.pluginMessage);
-            if (event.data.pluginMessage.isHidden) {
-                document.getElementById("hide").innerText = "👀";
-            } else {
-                document.getElementById("hide").innerText = "🙈";
-            }
-        }
-
-        if (event.data.pluginMessage.type === "delete") {
-            console.log("made it in", event.data.pluginMessage);
-            document.getElementById("hide").innerText = "🙈";
-            document.getElementById("lock").innerText = "🔒";
-            controlsDisabled(true);
-        }
-    }
-
-    document.getElementById('label').onclick = () => {
-        const compCheck = document.querySelector('#compCheck').checked;
-        const textbox = document.getElementById('padding');
-        const padding = parseInt(textbox.value);
-
-        //check the checkbox
-        //console.log(compCheck);
-
-        if (!compCheck) {
-            parent.postMessage({
-                pluginMessage: {
-                    type: 'label-frames',
-                    padding
-                }
-            }, '*')
-        } else {
-            parent.postMessage({
-                pluginMessage: {
-                    type: 'label-frames-and-comps',
-                    padding
-                }
-            }, '*')
-        }
-
-        controlsDisabled(false);
-        document.getElementById("hide").innerText = "🙈";
-        document.getElementById("lock").innerText = "🔒";
-    }
-
-    document.getElementById('delete').onclick = () => {
-        parent.postMessage({
-            pluginMessage: {
-                type: 'delete'
-            }
-        }, '*')
-    }
-
-    document.getElementById('hide').onclick = () => {
-        parent.postMessage({
-            pluginMessage: {
-                type: 'hide'
-            }
-        }, '*')
-    }
-
-    document.getElementById('lock').onclick = () => {
-        parent.postMessage({
-            pluginMessage: {
-                type: 'lock'
-            }
-        }, '*')
-    }
-
-    document.getElementById('cancel').onclick = () => {
-        parent.postMessage({
-            pluginMessage: {
-                type: 'cancel'
-            }
-        }, '*')
-    }
-</script>
 <style>
-    * {
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: small;
-    }
-    
-    #section-wrapper {
-        display: flex;
-        flex-flow: column nowrap;
-        justify-content: space-between;
-        align-items: stretch;
-        height: 100%;
-    }
-    
-    .flexitem {
-        flex-basis: auto;
-        margin: 5px 0px;
-    }
-    
-    body {
-        padding: 0px 5px;
-    }
-    
-    p {
-        padding: 0px;
-    }
-    
-    #padding {
-        padding: 6px;
-        font-weight: 600;
-    }
-    
-    section {
-        padding: 0px 0px 0px 0px;
-    }
-    
-    .button-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 0px;
-        grid-auto-rows: 100%;
-        margin: 0px;
-    }
-    
-    input {
-        width: 40px;
-        text-align: right;
-        border: none;
-        background-color: whitesmoke;
-        padding: 5px 0px, 5px, 5px;
-    }
-    
-    .regularCheckbox {
-        width: auto;
-        vertical-align: middle;
-        margin: 0px 5px 0px 0px;
-        background-color: #fafafa;
-        border: 1px solid #cacece;
-    }
-    
-    .checkboxLabel {
-        display: flex;
-        padding: 0px;
-        margin: 0px;
-    }
-    
-    button {
-        background-color: rgb(255, 255, 255);
-        border-color: green;
-        font-family: Arial, Helvetica, sans-serif;
-        padding: 10px 10px;
-        margin: auto 0px;
-        border-radius: 4px;
-        font-size: medium;
-        text-align: center;
-        font-weight: 600;
-        border: 1px solid transparent;
-    }
-    
-    *:focus {
-        outline-color: lightgray;
-        outline-width: 1px;
-        border-width: 1px;
-    }
-    
-    button:disabled {
-        /* background-color: rgb(202, 202, 202); */
-        border-color: transparent;
-        opacity: 0.5;
-    }
-    
-    button:hover {
-        /* font-weight: 700; */
-        border-width: 1px;
-        border-color: whitesmoke;
-    }
-    
-    .primaryButton {
-        background-color: green;
-        color: white;
-        font-size: small;
-        width: 100%;
-    }
-    
-    .primaryButton:hover {
-        background-color: darkgreen;
-    }
-    
-    .primaryButton:focus {
-        outline: darkgreen;
-    }
-    
-    .iconButton {
-        /* padding: 5px 10px 5px 13px; */
-        margin: 0px 5px 10px 0px;
-        font-size: large;
-        line-height: 30px;
-        background-color: whitesmoke;
-    }
-    
-    .secondaryButton {
-        height: auto;
-    }
-    
-    .secondaryButton:hover {
-        border-width: 1px;
-        border-color: lightgray;
-        background-color: whitesmoke;
-    }
-    
-    #delete {}
-    
-    #cancel:focus {
-        outline-color: rgb(138, 17, 17);
-    }
-    
-    #cancel {
-        color: firebrick;
-        font-size: small;
-        float: right;
-        margin: 0px 0px 10px 0px;
-        border-color: transparent;
-        font-weight: 400;
-    }
+  * {
+    font-family: Inter, Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    color: #8d4bf6;
+    padding: 0px;
+    margin: 0px;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  #section-wrapper {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 10px;
+    padding: 0px;
+    margin: 10px;
+  }
+
+  .containerDiv {
+    background: rgba(141, 75, 246, 0.1);
+    height: 42px;
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    padding: 0;
+    gap: 10px;
+  }
+
+  .custom-input {
+    width: 48;
+    height: 24px;
+    text-align: center;
+    background: rgba(141, 75, 246, 0.1);
+    border: none;
+    font-weight: bold;
+  }
+
+  .custom-input-label {
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    padding-left: 29px;
+  }
+
+  .custom-input-label:hover {
+    background-color: #EEE5FE;
+  }
+
+  .custom-checkbox {
+    display: none;
+  }
+
+  .custom-checkmark {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    padding-left: 29px;
+  }
+
+  .custom-checkmark:hover {
+    background-color: #EEE5FE;
+  }
+
+  .custom-checkmark:active{
+    background-color: #E9DDFD;
+  }
+
+  .custom-checkmark .checkmark {
+    width: 20px;
+    height: 20px;
+    background: rgba(141, 75, 246, 0.1);
+    position: relative;
+    margin-right: 10px;
+    transition: background-color 0.2s;
+  }
+
+  /* Style the custom checkmark when the checkbox is checked */
+  .custom-checkbox:checked + .checkmark {
+    background-color: #8d4bf6;
+  }
+
+  .custom-checkbox:checked + .checkmark::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px; /* Adjust the size as needed */
+    height: 12px; /* Adjust the size as needed */
+    background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgdmlld0JveD0iMCAwIDEyIDEyIiBmaWxsPSJub25lIj4KICA8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTQuNjYyNSAxMkM1LjExNTMzIDEyIDUuNDg3MSAxMS44NDIgNS43Mjc4OSAxMS40MTAyTDExLjc2MzQgMS44Mjg1M0wxMS43NjYxIDEuODI0MThDMTEuOTEyNiAxLjU4NjI5IDEyIDEuMzU0MTMgMTIgMS4wODU3M0MxMiAwLjc5ODYxIDExLjkwNDcgMC41MTgyMzYgMTEuNjk2MiAwLjMwNzk5MkMxMS40ODcyIDAuMDk3MzYyOCAxMS4yMDcxIDAgMTAuOTE5IDBDMTAuNzM1OCAwIDEwLjUzODcgMC4wMzAzMDkyIDEwLjM0OTggMC4xNDMxOEMxMC4xNjczIDAuMjUyMTc2IDEwLjA0MjkgMC40MDg1MDYgOS45NDYyNCAwLjU2Mjg4MUw0LjU5NjU0IDkuMTU3NjZMMi4wNjQ5MiA1LjgxNjYwQzEuOTYwMDggNS42Njk5OCAxLjgzMTQ1IDUuNTMzNDMgMS42NjIwNyA1LjQzNjVDMS40ODQyIDUuMzM0NzIgMS4yOTc2NyA1LjI5NzI2IDEuMTEyODggNS4yOTcyNkMwLjgxMzAwNyA1LjI5NzI2IDAuNTI4NTc0IDUuNDAyNzQgMC4zMTc2MjMgNS42MTI3NUMwLjEwNjY2NCA1LjgyMTgxIDAgNi4xMDQ5MSAwIDYuNDAyMjlDMCA2LjY4ODI4IDAuMTE5MzY5IDYuOTYwOTMgMC4yOTEyOCA3LjE4MDRMMC4yOTE5MTkgNy4xODA5NkwzLjYwMjYgMTEuNDMyQzMuNzIzMjUgMTEuNTg5OCAzLjg2NzQyIDExLjczNTkgNC4wNTAxNiAxMS44NDA5QzQuMjM5ODkgMTEuOTUgNC40NDUxNyAxMiA0LjY2MjUgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K")
+      no-repeat center center;
+    background-size: contain;
+  }
+
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    grid-auto-rows: 100%;
+  }
+
+  button {
+    text-align: center;
+    /* border: 1px solid transparent; */
+    border: none;
+    cursor: pointer;
+  }
+
+  *:focus {
+    outline-color: #8d4bf6;
+    outline-width: 1px;
+    border-width: 1px;
+  }
+
+  button:disabled {
+    border-color: transparent;
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  button:hover {
+    border-width: 1px;
+    border-color: whitesmoke;
+  }
+
+  .primaryButton {
+    background-color: #8d4bf6;
+    color: white;
+    font-weight: bold;
+    height: 42px;
+  }
+
+  .primaryButton:hover {
+    background-color: #682fc3;
+  }
+
+  .primaryButton:active {
+    background-color: #541EAA;
+  }
+
+  .iconButton {
+    height: 42px;
+    font-size: large;
+    line-height: 30px;
+    background: rgba(141, 75, 246, 0.1);
+  }
+
+  .iconButton:not([disabled]):hover {
+    background-color: #EEE5FE;
+  }
+
+  .iconButton:not([disabled]):active {
+    background-color: #E9DDFD;
+  }
+
+  #delete svg {
+    fill: #8d4bf6;
+  }
+
+  #delete:not([disabled]):hover {
+    background: rgba(246, 76, 96, 0.10);
+  }
+
+  #delete:not([disabled]):active {
+    background: rgba(246, 76, 96, 0.20);
+  }
+
+  #delete:not([disabled]):hover svg {
+    fill: #F64C60;
+  }
 </style>
+
+<script>
+  const unlockedIcon = `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="28"
+        height="28"
+        viewBox="0 0 28 28"
+        fill="none"
+      >
+        <path
+          d="M6.19727 23.1406H15.1328C16.5684 23.1406 17.3301 22.3594 17.3301 20.8164V14.0879C17.3301 12.5547 16.5684 11.7734 15.1328 11.7734H6.19727C4.76172 11.7734 4 12.5547 4 14.0879V20.8164C4 22.3594 4.76172 23.1406 6.19727 23.1406ZM14.1855 12.5352H15.7285V9.24414C15.7285 6.77344 17.3105 5.47461 19.1367 5.47461C20.9629 5.47461 22.5449 6.77344 22.5449 9.24414V11.4121C22.5449 11.9883 22.8867 12.2812 23.3262 12.2812C23.7461 12.2812 24.0977 12.0176 24.0977 11.4121V9.44922C24.0977 5.77734 21.6855 4 19.1367 4C16.5781 4 14.1855 5.77734 14.1855 9.44922V12.5352Z"
+          fill="#8d4bf6"
+        />
+      </svg>
+    `;
+  const lockedIcon = `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="28"
+        height="28"
+        viewBox="0 0 28 28"
+        fill="none"
+      >
+        <path
+          d="M9.19727 23.1602H18.1328C19.5684 23.1602 20.3301 22.3789 20.3301 20.8359V14.1074C20.3301 12.5644 19.5684 11.793 18.1328 11.793H9.19727C7.76172 11.793 7 12.5644 7 14.1074V20.8359C7 22.3789 7.76172 23.1602 9.19727 23.1602ZM8.70898 12.5449H10.2617V9.24414C10.2617 6.7832 11.834 5.47461 13.6602 5.47461C15.4863 5.47461 17.0781 6.7832 17.0781 9.24414V12.5449H18.6211V9.45898C18.6211 5.78711 16.2188 4 13.6602 4C11.1113 4 8.70898 5.78711 8.70898 9.45898V12.5449Z"
+          fill="#8d4bf6"
+        />
+      </svg>
+    `;
+  const hideIcon = `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="28"
+        height="28"
+        viewBox="0 0 28 28"
+        fill="none"
+      >
+        <path
+          d="M14.2422 22.6016C22.0645 22.6016 27.4746 16.2734 27.4746 14.3008C27.4746 12.3184 22.0547 6 14.2422 6C6.51758 6 1 12.3184 1 14.3008C1 16.2734 6.51758 22.6016 14.2422 22.6016ZM14.2422 19.7598C11.2246 19.7598 8.7832 17.3086 8.7832 14.3008C8.7832 11.2832 11.2246 8.8418 14.2422 8.8418C17.25 8.8418 19.7012 11.2832 19.7012 14.3008C19.7012 17.3086 17.25 19.7598 14.2422 19.7598ZM14.2422 16.293C15.3457 16.293 16.2344 15.4043 16.2344 14.3008C16.2344 13.1973 15.3457 12.3086 14.2422 12.3086C13.1387 12.3086 12.25 13.1973 12.25 14.3008C12.25 15.4043 13.1387 16.293 14.2422 16.293Z"
+          fill="#8d4bf6"
+        />
+      </svg>
+    `;
+  const showIcon = `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="28"
+        height="28"
+        viewBox="0 0 28 28"
+        fill="none"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M22.9336 22.6025C22.6309 22.9248 22.1621 22.9053 21.8691 22.6025L5.53125 6.28419C5.24805 6.00098 5.24805 5.50293 5.53125 5.21973C5.82422 4.92676 6.3125 4.92676 6.60547 5.21973L22.9336 21.5381C23.2266 21.8408 23.2559 22.2803 22.9336 22.6025ZM8.7832 14.1357C8.7832 13.2668 8.98565 12.4456 9.35136 11.7198L5.9865 8.359C2.87823 10.3465 1 12.9791 1 14.1357C1 16.1084 6.51758 22.4365 14.2422 22.4365C16.0363 22.4365 17.7036 22.1036 19.1998 21.5565L16.6614 19.0212C15.934 19.3901 15.1113 19.5947 14.2422 19.5947C11.2246 19.5947 8.7832 17.1435 8.7832 14.1357ZM22.769 19.7627C25.7233 17.7903 27.4746 15.2581 27.4746 14.1357C27.4746 12.1533 22.0547 5.83496 14.2422 5.83496C12.5837 5.83496 11.027 6.12621 9.61318 6.61479L12.1088 9.10892C12.7639 8.83052 13.4849 8.67675 14.2422 8.67675C17.25 8.67675 19.7012 11.1182 19.7012 14.1357C19.7012 14.8902 19.547 15.6096 19.2681 16.264L22.769 19.7627ZM14.2422 17.3486C14.4733 17.3486 14.6986 17.3244 14.9153 17.2771L11.0999 13.4663C11.0533 13.6819 11.0293 13.906 11.0293 14.1357C11.0293 15.9131 12.4648 17.3486 14.2422 17.3486ZM17.4399 14.4369L17.4551 14.1357C17.4551 12.3584 16.0195 10.9229 14.2422 10.9229C14.1398 10.9229 14.0386 10.9276 13.9391 10.9381L17.4399 14.4369Z"
+          fill="#8D4BF6"
+        />
+      </svg>
+    `;
+  const recycleIcon = `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="28"
+        height="28"
+        viewBox="0 0 28 28"
+        fill="currentColor"
+      >
+        <path
+          d="M11.4746 21.7793C11.0937 21.7793 10.8496 21.5547 10.8301 21.1836L10.5371 10.4316C10.5273 10.0703 10.7715 9.83594 11.1621 9.83594C11.5234 9.83594 11.7773 10.0605 11.7871 10.4219L12.0996 21.1836C12.1094 21.5449 11.8555 21.7793 11.4746 21.7793ZM14.4531 21.7793C14.0723 21.7793 13.8086 21.5449 13.8086 21.1836V10.4316C13.8086 10.0703 14.0723 9.83594 14.4531 9.83594C14.834 9.83594 15.1074 10.0703 15.1074 10.4316V21.1836C15.1074 21.5449 14.834 21.7793 14.4531 21.7793ZM17.4414 21.7793C17.0605 21.7793 16.8066 21.5449 16.8164 21.1836L17.1191 10.4316C17.1289 10.0606 17.3828 9.83594 17.7441 9.83594C18.1348 9.83594 18.3789 10.0703 18.3691 10.4316L18.0762 21.1836C18.0566 21.5547 17.8125 21.7793 17.4414 21.7793ZM10.166 7.46289H11.7188V5.37305C11.7188 4.81641 12.1094 4.45508 12.6953 4.45508H16.1914C16.7773 4.45508 17.168 4.81641 17.168 5.37305V7.46289H18.7207V5.27539C18.7207 3.85937 17.8027 3 16.2988 3H12.5879C11.084 3 10.166 3.85937 10.166 5.27539V7.46289ZM5.73242 8.24414H23.1836C23.584 8.24414 23.9062 7.90234 23.9062 7.50195C23.9062 7.10156 23.584 6.76953 23.1836 6.76953H5.73242C5.3418 6.76953 5 7.10156 5 7.50195C5 7.91211 5.3418 8.24414 5.73242 8.24414ZM9.98047 24.748H18.9355C20.332 24.748 21.2695 23.8398 21.3379 22.4434L22.0215 8.03906H6.88477L7.57812 22.4531C7.64648 23.8496 8.56445 24.748 9.98047 24.748Z"
+        />
+      </svg>
+    `;
+
+  //select all text when label is clicked
+  padding.addEventListener(`focus`, () => padding.select());
+
+  function controlsDisabled(disabled) {
+    document.getElementById("hide").disabled = disabled;
+    document.getElementById("lock").disabled = disabled;
+    document.getElementById("delete").disabled = disabled;
+  }
+  onmessage = (event) => {
+    if (event.data.pluginMessage.type === "launch") {
+      console.log("made it in", event.data.pluginMessage);
+      if (event.data.pluginMessage.isLocked) {
+        document.getElementById("lock").innerHTML = lockedIcon;
+      } else {
+        document.getElementById("lock").innerHTML = unlockedIcon;
+      }
+
+      if (event.data.pluginMessage.isHidden) {
+        document.getElementById("hide").innerHTML = showIcon;
+      } else {
+        document.getElementById("hide").innerHTML = hideIcon;
+      }
+
+      document.getElementById("delete").innerHTML = recycleIcon;
+
+      if (event.data.pluginMessage.existingLabels) {
+        controlsDisabled(false);
+      } else {
+        controlsDisabled(true);
+      }
+    }
+
+    if (event.data.pluginMessage.type === "disable") {
+      controlsDisabled(event.data.pluginMessage.isDisabled);
+    }
+
+    if (event.data.pluginMessage.type === "labeled") {
+      console.log("made it in", event.data.pluginMessage);
+      controlsDisabled(false);
+    }
+
+    if (event.data.pluginMessage.type === "updateLock") {
+      console.log("made it in", event.data.pluginMessage);
+      if (event.data.pluginMessage.isLocked) {
+        document.getElementById("lock").innerHTML = lockedIcon;
+      } else {
+        document.getElementById("lock").innerHTML = unlockedIcon;
+      }
+    }
+
+    if (event.data.pluginMessage.type === "updateEye") {
+      console.log("made it in", event.data.pluginMessage);
+      if (event.data.pluginMessage.isHidden) {
+        document.getElementById("hide").innerHTML = showIcon;
+      } else {
+        document.getElementById("hide").innerHTML = hideIcon;
+      }
+    }
+
+    if (event.data.pluginMessage.type === "delete") {
+      console.log("made it in", event.data.pluginMessage);
+      document.getElementById("hide").innerHTML = hideIcon;
+      document.getElementById("lock").innerHTML = unlockedIcon;
+      controlsDisabled(true);
+    }
+  };
+
+  document.getElementById("label").onclick = () => {
+    const compCheck = document.querySelector("#compCheck").checked;
+    const textbox = document.getElementById("padding");
+    const padding = parseInt(textbox.value);
+
+    //check the checkbox
+    //console.log(compCheck);
+
+    if (!compCheck) {
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: "label-frames",
+            padding,
+          },
+        },
+        "*"
+      );
+    } else {
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: "label-frames-and-comps",
+            padding,
+          },
+        },
+        "*"
+      );
+    }
+
+    controlsDisabled(false);
+    document.getElementById("hide").innerHTML = hideIcon;
+    document.getElementById("lock").innerHTML = unlockedIcon;
+  };
+
+  document.getElementById("delete").onclick = () => {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "delete",
+        },
+      },
+      "*"
+    );
+  };
+
+  document.getElementById("hide").onclick = () => {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "hide",
+        },
+      },
+      "*"
+    );
+  };
+
+  document.getElementById("lock").onclick = () => {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "lock",
+        },
+      },
+      "*"
+    );
+  };
+
+  document.getElementById("cancel").onclick = () => {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          type: "cancel",
+        },
+      },
+      "*"
+    );
+  };
+</script>

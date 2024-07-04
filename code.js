@@ -13,7 +13,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 let fontList = [];
 // This shows the HTML page in "ui.html".
-figma.showUI(__html__, { width: 275, height: 222 });
+figma.showUI(__html__, { width: 275, height: 258 });
 console.log("testing log");
 function loadFont(fontFamily, fontStyle) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -42,7 +42,6 @@ function main() {
         for (let i = 0; i < labelNodes.length; i++) {
             if (labelNodes[i] != null) {
                 console.log("loading font...");
-                // await figma.loadFontAsync(labelNodes[i].fontName);
                 yield loadFont(String(labelNodes[i].fontName.family));
             }
         }
@@ -51,23 +50,6 @@ function main() {
         }
     });
 }
-// figma.on('selectionchange', () => {
-//   var selectedNode:TextNode;
-//   for (const node of figma.currentPage.selection) {
-//     if (node.type === 'TEXT') {
-//       console.log("found a text layer selected");
-//       selectedNode = node; 
-//       break;
-//     }
-//   }
-//   if(selectedNode != null){
-//     console.log("loading font...");
-//     // figma.loadFontAsync(node.fontName);
-//     loadFont(String(selectedNode.fontName.family));
-//     console.log("selected font loaded");
-//     return "label-frames";
-//   }
-// })
 figma.on('currentpagechange', () => {
     launch();
 });
@@ -87,7 +69,7 @@ function labelFrames(nodes, labelNodes, padding) {
         var theError = "";
         if (figma.currentPage.selection.length > 0 && figma.currentPage.selection[0].type === "TEXT") {
             for (const node of figma.currentPage.selection) {
-                figma.notify('matching style of selected frame...', { timeout: 1.5 });
+                figma.notify('labeling with the style of selected text frame...', { timeout: 1.5 });
                 theFontSize = node.fontSize;
                 theFontFill = node.fills;
                 theTextDecoration = node.textDecoration;
@@ -168,11 +150,6 @@ function launch() {
         else {
             isHidden = false;
         }
-        // if (labelNodes[0].visible === false) {
-        //   isHidden = true;
-        // } else {
-        //   isHidden = false;
-        // }
     }
     else {
         existingLabels = false;
